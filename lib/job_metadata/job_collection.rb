@@ -1,0 +1,26 @@
+module JobMetadata
+  class JobCollection
+    include SetAccessors
+
+    BASE_KEY = 'batching_job_collection'
+
+    def initialize(client)
+      @client = client
+    end
+
+    def new_job(identifier)
+      add_to_set(:jobs, identifier)
+      Job.new(identifier)
+    end
+
+    def all_jobs
+      items_for_set(:jobs).map { |job_identifier| Job.new(job_identifier) }
+    end
+
+    private
+
+    def key_for_set(set_name)
+      "#{BASE_KEY}:#{set_name}"
+    end
+  end
+end
