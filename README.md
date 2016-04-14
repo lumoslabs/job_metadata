@@ -23,7 +23,7 @@ class BatchingJob
     job_id = "my_special_job:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
     job = JobMetadata.new_job(job_id)
 
-    very_large_collection.each_slice do |slice|
+    very_large_collection.each_slice(1000) do |slice|
       batch = job.new_batch_for_identifiers(slice)
       Resque.enqueue(ImportBatchJob, job_id: job_id, batch_index: batch.index)
     end
