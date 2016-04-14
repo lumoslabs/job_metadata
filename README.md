@@ -17,7 +17,7 @@ job = JobMetadata.new_job(job_id)
 
 Batches can be created by calling `job.new_batch_for_identifiers`. Each batch then gets a `batch_index`.
 For example, you might use this in batching job that separates a large job into many batches:
-```
+```ruby
 class BatchingJob
   def perform
     job_id = "my_special_job:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
@@ -32,7 +32,7 @@ end
 ```
 
 Using the `job_id` and `batch_index`, batches can then access the data and report on outcomes.
-```
+```ruby
 class ImportBatchJob
   def perform(options)
     batch = JobMetadata.batch_for(job_id: options[:job_id], batch_index: options[:batch_index])
@@ -48,7 +48,7 @@ end
 
 You can also use the `BatchTracker`, which handles reporting on the items automatically. Done this way the tracker removes batches when they are done and reports any errored or skipped ids. It also reports a count of the processed ids. All this reporting happens when the batch is over.
 
-```
+```ruby
 class ImportBatchJob
   def perform(options)
     tracker = JobMetadata.tracker_for(job_id: options[:job_id], batch_index: options[:batch_index])
@@ -66,7 +66,7 @@ end
 
 Finally, if you want to do a lookup for all items in a batch with a single query, etc, the `BatchTracker` accepts a lambda for ids to records and single record back to id (for reporting).
 
-```
+```ruby
 class ImportBatchJob
   def perform(options)
     ids_to_records = ->(ids) { Widget.where('id IN (?)', ids) }
