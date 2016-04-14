@@ -10,7 +10,7 @@ Currently, it is intended to be used with Redis as the centralized store.
 ## Usage
 
 To start off a new job, just provide a unique job_id.
-```
+```ruby
 job_id = "my_special_job:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
 job = JobMetadata.new_job(job_id)
 ```
