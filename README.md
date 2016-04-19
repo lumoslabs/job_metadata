@@ -24,7 +24,7 @@ class BatchingJob
     job = JobMetadata.new_job(job_id)
 
     very_large_collection.each_slice(1000) do |slice|
-      batch = job.new_batch_for_identifiers(slice)
+      batch = job.new_batch_for_items(slice)
       Resque.enqueue(ImportBatchJob, job_id: job_id, batch_index: batch.index)
     end
   end
