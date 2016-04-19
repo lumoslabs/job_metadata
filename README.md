@@ -3,7 +3,7 @@
 Distributed Batched Job Metadata Management
 
 This gem is intended to be used alongside a job queuing library. It can be used to provide context for jobs with many batches.
-It allows jobs to look up data they need in order to perform in a centralized store, and to report outcomes to the centralized store.
+It allows batches or jobs to look up data they need in order to perform in a centralized store, and to report outcomes to the centralized store.
 
 Currently, it is intended to be used with Redis as the centralized store.
 
@@ -35,7 +35,7 @@ Using the `job_id` and `batch_index`, batches can then access the data and repor
 ```ruby
 class ImportBatchJob
   def perform(options)
-    batch = JobMetadata.batch_for(job_id: options[:job_id], batch_index: options[:batch_index])
+    batch = JobMetadata::Batch.new(options[:job_id], options[:batch_index])
 
     batch.items_for_set(:pending).each do |item_id|
       get_item_using_id(item_id)

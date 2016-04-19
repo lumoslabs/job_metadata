@@ -2,6 +2,8 @@ module JobMetadata
   class BatchTracker
     attr_accessor :batch, :job, :error_callback
 
+    class BatchException < StandardError; end
+
     def initialize(options)
       @batch = options.fetch(:batch)
       @job = options.fetch(:job)
@@ -23,9 +25,9 @@ module JobMetadata
             error_callback.call(se, id: record_to_id(record))
             job.add_to_set(:errored, record_to_id(record))
           rescue Exception => ex
-            @errored_ids.concat(batch.pending_set)
+            @errored_ids.concat(batch.items_for_set(:pending).to_a)
             error_callback.call(ex, id: record_to_id(record))
-            job.add_to_set(:errored, batch.pending_set)
+            job.add_to_set(:errored, batch.items_for_set(:pending))
             raise ex
           end
         end
@@ -34,7 +36,7 @@ module JobMetadata
         report_results
 
         if @errored_ids.size > 0
-          error_callback.call('Batch contained errors.', ids: @errored_ids, batch_index: batch.index)
+          error_callback.call('Batch contained errors', ids: @errored_ids, batch_index: batch.index)
         end
       end
 
@@ -44,7 +46,7 @@ module JobMetadata
     private
 
     def report_results
-      job.add_to_set(:skipped, @skipped_ids)
+      job.add_to_set(:skipped, @skipped_ids) unless @skipped_ids.empty?
       job.increment_count_by(:processed, @processed_ids.size)
       batch.remove_set(:pending)
       job.remove_batch(batch.index)
@@ -59,7 +61,7 @@ module JobMetadata
     end
 
     def records
-      ids = batch.set(:pending)
+      ids = batch.items_for_set(:pending)
       @ids_to_records ? @ids_to_records.call(ids) : ids
     end
 

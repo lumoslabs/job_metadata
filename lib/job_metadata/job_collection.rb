@@ -2,11 +2,7 @@ module JobMetadata
   class JobCollection
     include SetAccessors
 
-    BASE_KEY = 'batching_job_collection'
-
-    def initialize(client)
-      @client = client
-    end
+    BASE_KEY = 'job_metadata_job_collection'.freeze
 
     def new_job(identifier)
       add_to_set(:jobs, identifier)
@@ -20,7 +16,7 @@ module JobMetadata
     private
 
     def key_for_set(set_name)
-      "#{BASE_KEY}:#{set_name}"
+      "#{BASE_KEY}:#{set_name}:set"
     end
   end
 end
