@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     job_metadata (0.1.0)
+      redis
 
 GEM
   remote: https://rubygems.org/
