@@ -14,15 +14,16 @@ module JobMetadata
       JobCollection.all_jobs
     end
 
-    def new_job(identifier)
-      JobCollection.new_job(identifier)
+    def new_job(job_name)
+      job_identifier = generate_identifier(job_name)
+      JobCollection.new_job(job_identifier)
     end
 
     def tracker_for(options)
-      raise ArgumentError unless [:job_id, :batch_index].all? { |key| options.keys.include?(key) }
+      raise ArgumentError unless [:job_identifier, :batch_index].all? { |key| options.keys.include?(key) }
 
-      job = Job.new(options[:job_id])
-      batch = Batch.new(options[:job_id], options[:batch_index])
+      job = Job.new(options[:job_identifier])
+      batch = Batch.new(options[:job_identifier], options[:batch_index])
 
       BatchTracker.new(
         batch: batch,
@@ -46,6 +47,12 @@ module JobMetadata
       configurator = OpenStruct.new
       yield(configurator)
       @config = configurator
+    end
+
+    private
+
+    def generate_identifier(job_name)
+      "#{job_name}:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
     end
   end
 end
