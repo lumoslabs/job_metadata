@@ -11,11 +11,11 @@ require 'job_metadata/version'
 module JobMetadata
   class << self
     def all_jobs
-      JobCollection.new.all_jobs
+      JobCollection.all_jobs
     end
 
     def new_job(identifier)
-      JobCollection.new.new_job(identifier)
+      JobCollection.new_job(identifier)
     end
 
     def tracker_for(options)

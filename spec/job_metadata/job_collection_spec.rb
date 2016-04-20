@@ -2,9 +2,9 @@ require 'spec_helper'
 
 module JobMetadata
   describe JobCollection do
-    it_behaves_like 'it includes SetAccessors', JobCollection.new
+    it_behaves_like 'it includes SetAccessors', JobCollection
 
-    let(:job_collection) { JobCollection.new }
+    let(:job_collection) { JobCollection }
 
     before do
       JobMetadata.config.redis.flushall
