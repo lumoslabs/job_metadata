@@ -9,10 +9,9 @@ Currently, it is intended to be used with Redis as the centralized store.
 
 ## Usage
 
-To start off a new job, just provide a unique job_identifier.
+To start off a new job, just provide a job name.
 ```ruby
-job_identifier = "my_special_job:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
-job = JobMetadata.new_job(job_identifier)
+job = JobMetadata.new_job('my_very_special_import_job')
 ```
 
 Batches can be created by calling `job.new_batch_for_items`. Each batch then gets a `batch_index`.
