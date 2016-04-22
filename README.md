@@ -9,33 +9,32 @@ Currently, it is intended to be used with Redis as the centralized store.
 
 ## Usage
 
-To start off a new job, just provide a unique job_id.
+To start off a new job, just provide a unique job_identifier.
 ```ruby
-job_id = "my_special_job:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
-job = JobMetadata.new_job(job_id)
+job_identifier = "my_special_job:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
+job = JobMetadata.new_job(job_identifier)
 ```
 
-Batches can be created by calling `job.new_batch_for_identifiers`. Each batch then gets a `batch_index`.
+Batches can be created by calling `job.new_batch_for_items`. Each batch then gets a `batch_index`.
 For example, you might use this in batching job that separates a large job into many batches:
 ```ruby
 class BatchingJob
   def perform
-    job_id = "my_special_job:#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}_#{rand.to_s[2..6]}"
-    job = JobMetadata.new_job(job_id)
+    job = JobMetadata.new_job('my_very_special_import_job')
 
     very_large_collection.each_slice(1000) do |slice|
       batch = job.new_batch_for_items(slice)
-      Resque.enqueue(ImportBatchJob, job_id: job_id, batch_index: batch.index)
+      Resque.enqueue(ImportBatchJob, job_identifier: job.identifier, batch_index: batch.index)
     end
   end
 end
 ```
 
-Using the `job_id` and `batch_index`, batches can then access the data and report on outcomes.
+Using the `job_identifier` and `batch_index`, batches can then access the data and report on outcomes.
 ```ruby
 class ImportBatchJob
   def perform(options)
-    batch = JobMetadata::Batch.new(options[:job_id], options[:batch_index])
+    batch = JobMetadata::Batch.new(options[:job_identifier], options[:batch_index])
 
     batch.items_for_set(:pending).each do |item_id|
       get_item_using_id(item_id)
@@ -51,7 +50,7 @@ You can also use the `BatchTracker`, which handles reporting on the items automa
 ```ruby
 class ImportBatchJob
   def perform(options)
-    tracker = JobMetadata.tracker_for(job_id: options[:job_id], batch_index: options[:batch_index])
+    tracker = JobMetadata.tracker_for(job_identifier: options[:job_identifier], batch_index: options[:batch_index])
 
     tracker.each_record do |id|
       widget = Widget.find(id)
@@ -73,7 +72,7 @@ class ImportBatchJob
     record_to_id = ->(record) { record.id }
 
     tracker = JobMetadata.tracker_for(
-      job_id: options[:job_id],
+      job_identifier: options[:job_identifier],
       batch_index: options[:batch_index],
       ids_to_records: ids_to_records,
       record_to_id: record_to_id
