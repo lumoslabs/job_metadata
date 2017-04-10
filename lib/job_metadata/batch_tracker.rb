@@ -61,12 +61,23 @@ module JobMetadata
     end
 
     def records
-      ids = batch.items_for_set(:pending)
-      @ids_to_records ? @ids_to_records.call(ids) : ids
+      begin
+        ids = batch.items_for_set(:pending)
+        @ids_to_records ? @ids_to_records.call(ids) : ids
+      rescue StandardError => se
+        error_callback.call(se, ids: ids)
+        job.add_to_set(:errored, batch.items_for_set(:pending))
+        raise se
+      end
     end
 
     def record_to_id(record)
-      @record_to_id ? @record_to_id.call(record) : record
+      begin
+        @record_to_id ? @record_to_id.call(record) : record
+      rescue StandardError => se
+        error_callback.call(se, record: record)
+        raise se
+      end
     end
   end
 end
