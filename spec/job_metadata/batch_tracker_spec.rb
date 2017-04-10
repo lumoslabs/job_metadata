@@ -166,6 +166,24 @@ module JobMetadata
         end
 
         it_behaves_like 'an each_record method'
+
+        context 'when the #ids_to_records_conversion throws a StandardError' do
+          let(:ids_to_records_conversion) { ->(ids) { raise StandardError.new('bad ids_to_records') } }
+
+          it 'calls the error_callback and re-raises the error' do
+            expect(rollbar_double).to receive(:error)
+            expect{ tracker.each_record { |id| id } }.to raise_error(StandardError, 'bad ids_to_records')
+          end
+        end
+
+        context 'when the #record_to_id_conversion throws a StandardError' do
+          let(:record_to_id_conversion) { ->(ids) { raise StandardError.new('bad record_to_id') } }
+
+          it 'calls the error_callback and re-raises the error' do
+            expect(rollbar_double).to receive(:error)
+            expect{ tracker.each_record { |id| raise StandardError } }.to raise_error(StandardError, 'bad record_to_id')
+          end
+        end
       end
     end
   end
