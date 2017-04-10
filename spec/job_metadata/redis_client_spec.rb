@@ -14,7 +14,7 @@ module JobMetadata
 
       it 'adds the items to the set' do
         subject
-        expect(client.items_for_set(set).map(&:to_i)).to eq(ids)
+        expect(client.items_for_set(set).map(&:to_i).sort).to eq(ids.sort)
       end
     end
 
@@ -26,7 +26,7 @@ module JobMetadata
 
         it 'returns the items from the set' do
           subject
-          expect(subject.map(&:to_i)).to eq(ids)
+          expect(subject.map(&:to_i).sort).to eq(ids.sort)
         end
       end
     end

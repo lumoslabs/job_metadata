@@ -25,7 +25,7 @@ module JobMetadata
 
       it "adds the job to the job_collection's jobs" do
         job = subject
-        expect(job_collection.items_for_set(:jobs).to_a.last).to eq(job.identifier)
+        expect(job_collection.items_for_set(:jobs).to_a).to include(job.identifier)
       end
     end
 
@@ -34,7 +34,7 @@ module JobMetadata
         let!(:job) { job_collection.new_job('test_job_id') }
 
         it 'returns a job object with the matching identifier' do
-          expect(job_collection.all_jobs.last.identifier).to eq(job.identifier)
+          expect(job_collection.all_jobs.map(&:identifier)).to include(job.identifier)
         end
       end
     end

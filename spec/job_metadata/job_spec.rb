@@ -19,7 +19,7 @@ module JobMetadata
       end
 
       it 'adds the ids to the pending set of the batch' do
-        expect(subject.items_for_set(:pending).map(&:to_i)).to eq(ids)
+        expect(subject.items_for_set(:pending).map(&:to_i).sort).to eq(ids.sort)
       end
 
       it "adds the batch to the job's batches" do
